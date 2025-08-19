@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<ruleset name="FALCify Free">
-  <description>WordPress Coding Standards for FALCify Free.</description>
-  <rule ref="WordPress"/>
-  <config name="testVersion" value="7.4-"/>
-  <exclude-pattern>vendor/*</exclude-pattern>
-  <exclude-pattern>node_modules/*</exclude-pattern>
-</ruleset>
