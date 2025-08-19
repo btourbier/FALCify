@@ -104,6 +104,39 @@ class Admin {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'FALCify Free', 'falcify-free' ); ?></h1>
+			<?php
+$data      = \Falcify_Free\Usage::get();
+$quota     = \Falcify_Free\Usage::MONTHLY_QUOTA;
+$used      = (int) $data['used'];
+$remaining = \Falcify_Free\Usage::remaining();
+$period    = esc_html( $data['period'] );
+$percent   = $quota > 0 ? min( 100, max( 0, round( ( $used / $quota ) * 100 ) ) ) : 0;
+?>
+
+<div class="notice notice-info" style="padding:16px; margin-top:12px;">
+	<h2 style="margin-top:0;"><?php esc_html_e( 'Consommation mensuelle (site)', 'falcify-free' ); ?></h2>
+	<p>
+		<strong><?php echo esc_html( sprintf( __( 'Période : %s', 'falcify-free' ), $period ) ); ?></strong><br/>
+		<?php
+		echo esc_html(
+			sprintf(
+				/* translators: 1: used words, 2: quota, 3: remaining */
+				__( 'Utilisés : %1$d / %2$d mots — Restants : %3$d', 'falcify-free' ),
+				$used,
+				$quota,
+				$remaining
+			)
+		);
+		?>
+	</p>
+	<div style="height:12px;background:#eee;border-radius:6px;overflow:hidden;max-width:480px;">
+		<div style="height:12px;width:<?php echo esc_attr( (string) $percent ); ?>%;background:#2271b1;"></div>
+	</div>
+	<?php if ( 0 === $remaining ) : ?>
+		<p style="color:#b32d2e;margin-top:8px;"><strong><?php esc_html_e( 'Limite atteinte : la génération FALC est bloquée jusqu’au prochain reset mensuel.', 'falcify-free' ); ?></strong></p>
+	<?php endif; ?>
+</div>
+
 			<form method="post" action="options.php">
 				<?php
 				settings_fields( 'falcify_free_group' );
