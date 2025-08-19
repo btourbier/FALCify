@@ -35,6 +35,9 @@ add_action( 'plugins_loaded', 'falcify_free_load_textdomain' );
 // Includes.
 require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-admin.php';
 require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-frontend.php';
+require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-usage.php';
+require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-api.php';
+
 
 /**
  * Initialize plugin modules.
