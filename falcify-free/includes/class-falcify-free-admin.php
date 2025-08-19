@@ -80,29 +80,17 @@ class Admin {
 	}
 
 	/**
-	 * Render checkbox field.
-	 */
-	public static function render_enable_button_field() : void {
-		$options = get_option( self::OPTION_KEY, array( 'enable_button' => 'yes' ) );
-		$val     = isset( $options['enable_button'] ) ? $options['enable_button'] : 'yes';
-		?>
-		<label>
-			<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_button]" value="yes" <?php checked( $val, 'yes' ); ?> />
-			<?php esc_html_e( 'Afficher le bouton sur les pages et articles (si une version FALC existe).', 'falcify-free' ); ?>
-		</label>
-		<?php
-	}
-
-	/**
-	 * Add settings page.
+	 * Add top-level menu in WP admin.
 	 */
 	public static function settings_page() : void {
-		add_options_page(
-			__( 'FALCify Free', 'falcify-free' ),
-			__( 'FALCify Free', 'falcify-free' ),
-			'manage_options',
-			'falcify_free',
-			array( __CLASS__, 'render_settings_page' )
+		add_menu_page(
+			__( 'FALCify Free', 'falcify-free' ),   // Titre de la page
+			__( 'FALCify', 'falcify-free' ),        // Texte du menu
+			'manage_options',                       // Capability
+			'falcify_free',                         // Slug du menu
+			array( __CLASS__, 'render_settings_page' ), // Callback
+			'dashicons-translation',                // Icône (Dashicons)
+			65                                      // Position
 		);
 	}
 
@@ -182,7 +170,6 @@ class Admin {
 		}
 
 		if ( isset( $_POST['falcify_falc'] ) ) {
-			// Allow WP HTML, strip disallowed tags.
 			$falc = wp_kses_post( wp_unslash( $_POST['falcify_falc'] ) );
 			update_post_meta( $post_id, '_falcify_falc', $falc );
 		}
