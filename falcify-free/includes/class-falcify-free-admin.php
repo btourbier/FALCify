@@ -174,8 +174,7 @@ class Admin {
 			update_post_meta( $post_id, '_falcify_falc', $falc );
 		}
 	}
-}
-	/**
+		/**
 	 * Render checkbox field.
 	 */
 	public static function render_enable_button_field() : void {
@@ -188,4 +187,6 @@ class Admin {
 		</label>
 		<?php
 	}
+
+}
 
