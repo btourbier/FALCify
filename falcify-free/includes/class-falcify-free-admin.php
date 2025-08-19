@@ -175,3 +175,17 @@ class Admin {
 		}
 	}
 }
+	/**
+	 * Render checkbox field.
+	 */
+	public static function render_enable_button_field() : void {
+		$options = get_option( self::OPTION_KEY, array( 'enable_button' => 'yes' ) );
+		$val     = isset( $options['enable_button'] ) ? $options['enable_button'] : 'yes';
+		?>
+		<label>
+			<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enable_button]" value="yes" <?php checked( $val, 'yes' ); ?> />
+			<?php esc_html_e( 'Afficher le bouton sur les pages et articles (si une version FALC existe).', 'falcify-free' ); ?>
+		</label>
+		<?php
+	}
+
