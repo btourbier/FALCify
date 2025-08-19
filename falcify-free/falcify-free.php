@@ -1,49 +1,118 @@
 <?php
-/**
- * Plugin Name:       FALCify Free
- * Plugin URI:        https://github.com/your-account/falcify-free
- * Description:       Ajoute une version FALC (Facile À Lire et À Comprendre) des contenus WordPress avec bascule front accessible. Version gratuite (MVP).
- * Version:           1.0.0
- * Requires at least: 6.0
- * Requires PHP:      7.4
- * Author:            TECHNIWEB - https://www.techniweb-agence.fr/
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       falcify-free
- * Domain Path:       /languages
- *
- * @package Falcify_Free
- */
+namespace Falcify_Free;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FALCIFY_FREE_VERSION', '1.0.0' );
-define( 'FALCIFY_FREE_FILE', __FILE__ );
-define( 'FALCIFY_FREE_DIR', plugin_dir_path( __FILE__ ) );
-define( 'FALCIFY_FREE_URL', plugin_dir_url( __FILE__ ) );
-
 /**
- * Load textdomain.
+ * Minimal REST endpoints to validate quota before generation.
+ * Guard against redeclare if the file is included twice somewhere.
  */
-function falcify_free_load_textdomain() {
-	load_plugin_textdomain( 'falcify-free', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+if ( ! class_exists( __NAMESPACE__ . '\Api', false ) ) :
+
+class Api {
+
+	/**
+	 * Boot.
+	 */
+	public static function init() : void {
+		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
+	}
+
+	/**
+	 * Register routes.
+	 */
+	public static function register_routes() : void {
+		register_rest_route(
+			'falcify-free/v1',
+			'/can-generate',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'can_generate' ),
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'args' => array(
+					'intended_words' => array(
+						'type'              => 'integer',
+						'required'          => false,
+						'default'           => 1,
+						'validate_callback' => function( $param ) {
+							return is_numeric( $param ) && $param >= 0;
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'falcify-free/v1',
+			'/add-usage',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'add_usage' ),
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'args' => array(
+					'words' => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'validate_callback' => function( $param ) {
+							return is_numeric( $param ) && $param >= 0;
+						},
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Check if generation is allowed (remaining quota >= intended_words).
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 */
+	public static function can_generate( $request ) {
+		$intended = (int) $request->get_param( 'intended_words' );
+		$intended = max( 0, $intended );
+		$allowed  = Usage::can_generate( $intended );
+
+		return rest_ensure_response( array(
+			'allowed'   => $allowed,
+			'remaining' => Usage::remaining(),
+			'quota'     => Usage::MONTHLY_QUOTA,
+			'period'    => Usage::get()['period'],
+		) );
+	}
+
+	/**
+	 * Add words usage after a successful generation.
+	 *
+	 * @param \WP_REST_Request $request Request.
+	 */
+	public static function add_usage( $request ) {
+		$words = (int) $request->get_param( 'words' );
+		$words = max( 0, $words );
+
+		if ( ! Usage::can_generate( $words ) ) {
+			return new \WP_Error(
+				'falcify_quota_exceeded',
+				__( 'La limite mensuelle est atteinte. La génération FALC est bloquée.', 'falcify-free' ),
+				array( 'status' => 402 )
+			);
+		}
+
+		Usage::add( $words );
+
+		return rest_ensure_response( array(
+			'success'   => true,
+			'used'      => Usage::get()['used'],
+			'remaining' => Usage::remaining(),
+			'quota'     => Usage::MONTHLY_QUOTA,
+			'period'    => Usage::get()['period'],
+		) );
+	}
 }
-add_action( 'plugins_loaded', 'falcify_free_load_textdomain' );
 
-// Includes.
-require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-admin.php';
-require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-frontend.php';
-require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-usage.php';
-require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-api.php';
-
-
-/**
- * Initialize plugin modules.
- */
-function falcify_free_init() {
-	\Falcify_Free\Admin::init();
-	\Falcify_Free\Frontend::init();
-}
-add_action( 'plugins_loaded', 'falcify_free_init', 20 );
+endif; // class guard
