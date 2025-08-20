@@ -1,0 +1,15 @@
+.falcify-side{padding:12px}
+.falcify-card{background:#f6f7f7;border-radius:12px;padding:16px}
+.falcify-card__header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.falcify-logo{border-radius:6px}
+.falcify-title{font-weight:600;font-size:14px}
+.falcify-muted{color:#50575e;margin:6px 0 12px;display:block}
+.falcify-sub-card{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e2e4e7;border-radius:10px;padding:10px}
+.falcify-badge{font-size:11px;font-weight:700;background:#eaf3ff;color:#0057d8;border:1px solid #cfe3ff;border-radius:999px;padding:6px 10px;display:inline-block;margin-bottom:6px}
+.falcify-progress{width:220px;height:8px;background:#eef0f2;border-radius:999px;overflow:hidden}
+.falcify-progress__bar{height:100%;background:#007cba}
+.falcify-counter{font-size:12px;color:#1e1e1e;margin-top:4px}
+.falcify-actions{margin:14px 0}
+.falcify-score{color:#1e1e1e;font-size:12px}
+.falcify-footnote{color:#6c7781;font-size:11px;margin-top:6px}
+.components-panel__body .components-textarea-control__input{min-height:140px}
