@@ -119,4 +119,41 @@ class Admin {
             update_post_meta( $post_id, '_falcify_falc', $falc );
         }
     }
+
+    public static function init() : void {
+	add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+	add_action( 'add_meta_boxes', array( __CLASS__, 'register_metabox' ) );
+	add_action( 'save_post', array( __CLASS__, 'save_metabox' ), 10, 2 );
+	add_action( 'admin_menu', array( __CLASS__, 'settings_page' ) );
+
+	// 👉 Sidebar Gutenberg
+	add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
+}
+
+public static function enqueue_editor_assets() : void {
+	wp_enqueue_script(
+		'falcify-editor-sidebar',
+		FALCIFY_FREE_URL . 'admin/editor-sidebar.js',
+		array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data', 'wp-editor', 'wp-api-fetch', 'wp-wordcount' ),
+		FALCIFY_FREE_VERSION,
+		true
+	);
+
+	wp_enqueue_style(
+		'falcify-editor-sidebar',
+		FALCIFY_FREE_URL . 'admin/editor-sidebar.css',
+		array(),
+		FALCIFY_FREE_VERSION
+	);
+
+	wp_localize_script(
+		'falcify-editor-sidebar',
+		'falcifyEditorVars',
+		array(
+			'logo'       => esc_url( FALCIFY_FREE_URL . 'assets/logo-falcify.svg' ),
+			'upgradeUrl' => esc_url( apply_filters( 'falcify_free_upgrade_url', 'https://falcify.tech/upgrade' ) ),
+		)
+	);
+}
+
 }
