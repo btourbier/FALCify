@@ -24,6 +24,7 @@ define( 'FALCIFY_FREE_FILE', __FILE__ );
 define( 'FALCIFY_FREE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FALCIFY_FREE_URL', plugin_dir_url( __FILE__ ) );
 
+
 /**
  * Load textdomain.
  */
@@ -35,6 +36,15 @@ add_action( 'plugins_loaded', 'falcify_free_load_textdomain' );
 // Includes.
 require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-admin.php';
 require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-frontend.php';
+require_once FALCIFY_FREE_DIR . 'includes/class-falcify-free-rest.php'; // 👈
+
+// Init.
+function falcify_free_init() {
+	\Falcify_Free\Admin::init();
+	\Falcify_Free\Frontend::init();
+	\Falcify_Free\REST::init(); // 👈
+}
+add_action( 'plugins_loaded', 'falcify_free_init', 20 );
 
 /**
  * Initialize plugin modules.
